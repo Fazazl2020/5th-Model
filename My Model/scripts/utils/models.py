@@ -708,9 +708,25 @@ class Model(object):
         net = net.to(self.device)
 
         if not os.path.isfile(model_file):
-            print(f"\n✗ ERROR: Model file not found: {model_file}")
-            print("Please train the model first or check the model_file path in configs.py")
-            return
+            # Check for alternative checkpoint files
+            ckpt_dir = os.path.dirname(model_file)
+            alternatives = []
+            if os.path.isdir(ckpt_dir):
+                for alt in ['best.pt', 'best_pesq.pt', 'latest.pt']:
+                    alt_path = os.path.join(ckpt_dir, alt)
+                    if os.path.isfile(alt_path):
+                        alternatives.append(alt_path)
+
+            error_msg = f"Model file not found: {model_file}"
+            if alternatives:
+                error_msg += f"\n\nAlternative checkpoint files found:\n"
+                for alt in alternatives:
+                    error_msg += f"  - {alt}\n"
+                error_msg += "\nUpdate test_conf['model_file'] in configs.py to use one of these files."
+            else:
+                error_msg += "\n\nPlease train the model first or check the model_file path in configs.py"
+
+            raise FileNotFoundError(error_msg)
 
         ckpt = CheckPoint()
         ckpt.load(model_file, self.device)

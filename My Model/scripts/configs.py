@@ -77,9 +77,10 @@ train_conf = {
 # ==================== TEST CONFIGURATION ====================
 test_conf = {
     # CMGAN-Style Testing Configuration
-    'model_file': './ckpt/models/best_pesq.pt',  # Model checkpoint to use for testing
+    # NOTE: Use 'best.pt' if 'best_pesq.pt' doesn't exist yet
+    'model_file': '/ghome/fewahab/Sun-Models/Ab-5/M4/scripts/ckpt/models/best_pesq.pt',
     'save_tracks': True,                          # Save enhanced audio files
-    'save_dir': './saved_tracks_test',            # Output directory for enhanced audio
+    'save_dir': '/gdata/fewahab/Sun-Models/Ab-5/M4/saved_tracks_test',  # Output directory for enhanced audio
 
     # Metrics computation
     'compute_metrics': True,                      # Compute PESQ, STOI, etc.
