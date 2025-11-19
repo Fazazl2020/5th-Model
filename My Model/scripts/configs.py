@@ -76,10 +76,29 @@ train_conf = {
 
 # ==================== TEST CONFIGURATION ====================
 test_conf = {
-    'model_file': './ckpt/models/best_pesq.pt',  # CHANGED: Model checkpoint to use for testing (was: './checkpoints/models/best.pt')
-    'batch_size': 1,        # CHANGED: Batch size for testing (was: 4, now: 1 for standard practice)
-    'num_workers': 2,       # Number of data loading workers
-    'write_ideal': False,   # Whether to write ideal (analysis-synthesis) audio
+    # CMGAN-Style Testing Configuration
+    # NOTE: Use 'best.pt' if 'best_pesq.pt' doesn't exist yet
+    'model_file': '/ghome/fewahab/Sun-Models/Ab-5/M4/scripts/ckpt/models/best.pt',
+    'save_tracks': True,                          # Save enhanced audio files
+    'save_dir': '/gdata/fewahab/Sun-Models/Ab-5/M4/saved_tracks_test',  # Output directory for enhanced audio
+
+    # Metrics computation
+    'compute_metrics': True,                      # Compute PESQ, STOI, etc.
+
+    # Processing parameters (CRITICAL: These must match training params!)
+    # DO NOT change these - they match your trained checkpoint
+    'n_fft': 320,           # FFT size (matches exp_conf, DO NOT change to CMGAN's 400)
+    'hop_length': 160,      # Hop length (matches exp_conf, DO NOT change to CMGAN's 100)
+    'power': 0.3,           # Power compression exponent
+    'cut_len': 16000 * 16,  # Maximum audio length for processing (16 seconds)
+
+    # Device
+    'device': 'cuda',       # Device to use ('cuda' or 'cpu')
+
+    # Legacy parameters (for backward compatibility with old test method)
+    'batch_size': 1,        # Batch size (not used in CMGAN-style testing)
+    'num_workers': 2,       # Number of workers (not used in CMGAN-style testing)
+    'write_ideal': False,   # Write ideal audio (not used in CMGAN-style testing)
 }
 
 # ==================== DATA DIRECTORIES ====================
