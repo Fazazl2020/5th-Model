@@ -835,6 +835,25 @@ class Model(object):
             print(f"  COVL: {metrics_avg[3]:.4f}")
             print(f"  SSNR: {metrics_avg[4]:.4f} dB")
             print(f"  STOI: {metrics_avg[5]:.4f}")
+
+            # Save metrics to CSV file
+            import csv
+            from datetime import datetime
+            metrics_file = os.path.join(save_dir, 'test_metrics.csv')
+            with open(metrics_file, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(['Metric', 'Average Value'])
+                writer.writerow(['PESQ', f'{metrics_avg[0]:.4f}'])
+                writer.writerow(['CSIG', f'{metrics_avg[1]:.4f}'])
+                writer.writerow(['CBAK', f'{metrics_avg[2]:.4f}'])
+                writer.writerow(['COVL', f'{metrics_avg[3]:.4f}'])
+                writer.writerow(['SSNR', f'{metrics_avg[4]:.4f}'])
+                writer.writerow(['STOI', f'{metrics_avg[5]:.4f}'])
+                writer.writerow([])
+                writer.writerow(['Total Files Processed', num_files])
+                writer.writerow(['Files with Metrics', metrics_count])
+                writer.writerow(['Test Date', datetime.now().strftime('%Y-%m-%d %H:%M:%S')])
+            print(f"\n✓ Metrics saved to: {metrics_file}")
         else:
             print("\nMetrics not computed")
 
