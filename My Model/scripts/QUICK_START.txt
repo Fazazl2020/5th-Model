@@ -1,0 +1,114 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║       CMGAN-STYLE EVALUATION - QUICK START GUIDE                     ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+📦 INSTALLATION
+═══════════════════════════════════════════════════════════════════════
+pip install pesq pystoi pysepm
+
+
+🚀 BASIC USAGE
+═══════════════════════════════════════════════════════════════════════
+cd "/home/user/5th-Model/My Model/scripts"
+
+python evaluation.py \
+    --model_path ./ckpt/models/best_pesq.pt \
+    --test_dir /gdata/fewahab/data/Voicebank+demand/My_train_valid_test/test \
+    --save_dir ./cmgan_style_results
+
+
+🎯 ADVANCED USAGE
+═══════════════════════════════════════════════════════════════════════
+python evaluation.py \
+    --model_path ./ckpt/models/best_pesq.pt \
+    --noisy_dir /path/to/noisy \
+    --clean_dir /path/to/clean \
+    --save_dir ./results \
+    --save_tracks True \
+    --device cuda
+
+
+📊 EXPECTED OUTPUT
+═══════════════════════════════════════════════════════════════════════
+Average Metrics:
+  PESQ: 2.8534  (higher is better, range: -0.5 to 4.5)
+  CSIG: 4.2156  (higher is better, range: 1 to 5)
+  CBAK: 3.8923  (higher is better, range: 1 to 5)
+  COVL: 3.7821  (higher is better, range: 1 to 5)
+  SSNR: 8.2341  (higher is better, in dB)
+  STOI: 0.9456  (higher is better, range: 0 to 1)
+
+
+⚙️ PARAMETERS (DO NOT CHANGE)
+═══════════════════════════════════════════════════════════════════════
+  --n_fft 320        ← Your model's FFT size (NOT CMGAN's 400)
+  --hop 160          ← Your model's hop length (NOT CMGAN's 100)
+  --power 0.3        ← Power compression exponent
+
+
+📁 NEW FILES
+═══════════════════════════════════════════════════════════════════════
+✅ evaluation.py                    ← CMGAN-style evaluation
+✅ tools/compute_metrics.py         ← Metrics computation
+✅ tools/__init__.py                ← Package initialization
+✅ EVALUATION_GUIDE.md              ← Detailed guide
+✅ QUICK_START.txt                  ← This file
+
+
+🔄 COMPARISON: OLD VS NEW
+═══════════════════════════════════════════════════════════════════════
+OLD (test.py):
+  - DataLoader batch processing
+  - SNR-organized output (snr_-06/, snr_000/, etc.)
+  - No metrics
+  - Uses configs.py
+
+NEW (evaluation.py):
+  - File-by-file processing (like CMGAN)
+  - Single output directory
+  - Inline metrics (PESQ, STOI, etc.)
+  - Command-line arguments
+
+
+⚠️ IMPORTANT NOTES
+═══════════════════════════════════════════════════════════════════════
+1. DO NOT change n_fft or hop_length (breaks checkpoint compatibility)
+2. Your model uses different STFT params than CMGAN (this is OK!)
+3. Keep your old test.py if you need SNR-organized output
+4. Checkpoint compatibility is maintained ✅
+
+
+🧪 QUICK TEST (Few Files)
+═══════════════════════════════════════════════════════════════════════
+# Test with first 5 files
+mkdir -p test_small/noisy test_small/clean
+cp /gdata/fewahab/data/Voicebank+demand/My_train_valid_test/test/noisy/*.wav \
+   test_small/noisy/ | head -5
+cp /gdata/fewahab/data/Voicebank+demand/My_train_valid_test/test/clean/*.wav \
+   test_small/clean/ | head -5
+
+python evaluation.py \
+    --model_path ./ckpt/models/best_pesq.pt \
+    --noisy_dir ./test_small/noisy \
+    --clean_dir ./test_small/clean \
+    --save_dir ./test_small/output
+
+
+📖 MORE HELP
+═══════════════════════════════════════════════════════════════════════
+Detailed guide:     See EVALUATION_GUIDE.md
+Full summary:       See /home/user/5th-Model/ALIGNMENT_SUMMARY.md
+Troubleshooting:    See EVALUATION_GUIDE.md (Section: Support)
+
+
+✅ CHECKLIST
+═══════════════════════════════════════════════════════════════════════
+[ ] Installed dependencies (pesq, pystoi, pysepm)
+[ ] Read EVALUATION_GUIDE.md
+[ ] Tested with a few files
+[ ] Ready for full evaluation
+
+
+═══════════════════════════════════════════════════════════════════════
+Created: 2025-11-19 | Compatible with your trained checkpoint ✅
+═══════════════════════════════════════════════════════════════════════
