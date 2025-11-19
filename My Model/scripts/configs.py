@@ -78,7 +78,7 @@ train_conf = {
 test_conf = {
     # CMGAN-Style Testing Configuration
     # NOTE: Use 'best.pt' if 'best_pesq.pt' doesn't exist yet
-    'model_file': '/ghome/fewahab/Sun-Models/Ab-5/M4/scripts/ckpt/models/best_pesq.pt',
+    'model_file': '/ghome/fewahab/Sun-Models/Ab-5/M4/scripts/ckpt/models/best.pt',
     'save_tracks': True,                          # Save enhanced audio files
     'save_dir': '/gdata/fewahab/Sun-Models/Ab-5/M4/saved_tracks_test',  # Output directory for enhanced audio
 
