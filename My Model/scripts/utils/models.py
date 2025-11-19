@@ -601,25 +601,17 @@ class Model(object):
                 batch_size += 1
             noisy = torch.reshape(noisy, (batch_size, -1))
 
-        # STFT
-        noisy_spec = torch.stft(
-            noisy,
-            self.n_fft,
-            self.hop_length,
-            window=torch.hamming_window(self.n_fft).to(self.device),
-            onesided=True,
-            return_complex=False  # Returns [batch, freq, time, 2]
-        )
+        # Use STFT class (matches training pipeline exactly)
+        from utils.stft import STFT
+        stft_transform = STFT(self.n_fft, self.hop_length, self.device)
 
-        # Extract real and imaginary parts and transpose to [batch, time, freq]
-        # noisy_spec shape: [batch, freq, time, 2]
-        noisy_real = noisy_spec[:, :, :, 0].transpose(1, 2).contiguous()  # [B, T, F]
-        noisy_imag = noisy_spec[:, :, :, 1].transpose(1, 2).contiguous()  # [B, T, F]
+        # STFT - returns [B, T, F]
+        noisy_real, noisy_imag = stft_transform.stft(noisy)
 
         # Power compression
         noisy_real_c, noisy_imag_c = power_compress(noisy_real, noisy_imag, self.power)
 
-        # Stack to [batch, 2, time, freq] format
+        # Stack to [batch, 2, time, freq] format (model input)
         noisy_input = torch.stack([noisy_real_c, noisy_imag_c], dim=1)  # [B, 2, T, F]
 
         # Model inference
@@ -632,25 +624,11 @@ class Model(object):
         # Power decompression
         est_real_uc, est_imag_uc = power_uncompress(est_real, est_imag, self.power)
 
-        # Transpose back to [B, F, T] for iSTFT
-        est_real_uc = est_real_uc.transpose(1, 2)  # [B, F, T]
-        est_imag_uc = est_imag_uc.transpose(1, 2)  # [B, F, T]
-
-        # Combine to complex spectrum [B, F, T, 2]
-        est_spec = torch.stack([est_real_uc, est_imag_uc], dim=-1)
-
-        # iSTFT
-        est_audio = torch.istft(
-            est_spec,
-            self.n_fft,
-            self.hop_length,
-            window=torch.hamming_window(self.n_fft).to(self.device),
-            onesided=True,
-            length=padded_len
-        )
+        # iSTFT using STFT class (matches training pipeline exactly)
+        est_audio = stft_transform.istft(est_real_uc, est_imag_uc, length=padded_len)
 
         # Denormalize (CMGAN-style)
-        est_audio = est_audio / c
+        est_audio = est_audio / c.unsqueeze(-1)
 
         # Flatten and truncate to original length
         est_audio = torch.flatten(est_audio)[:length].cpu().numpy()
