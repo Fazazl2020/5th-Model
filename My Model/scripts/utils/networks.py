@@ -901,24 +901,36 @@ class Net(nn.Module):
         
         d5 = self.bn5_t(F.pad(self.de5(out), [0, 0, 1, 0]).contiguous())
         d5 = self.elu(d5)
+        # Match both time (dim=2) and frequency (dim=3) dimensions
+        if d5.shape[2] < e4.shape[2]:
+            e4 = e4[:, :, :d5.shape[2], :].contiguous()
         if d5.shape[3] < e4.shape[3]:
             e4 = e4[:, :, :, :d5.shape[3]].contiguous()
         out = torch.cat([d5, e4], dim=1)
         
         d4 = self.bn4_t(F.pad(self.de4(out), [0, 0, 1, 0]).contiguous())
         d4 = self.elu(d4)
+        # Match both time (dim=2) and frequency (dim=3) dimensions
+        if d4.shape[2] < e3.shape[2]:
+            e3 = e3[:, :, :d4.shape[2], :].contiguous()
         if d4.shape[3] < e3.shape[3]:
             e3 = e3[:, :, :, :d4.shape[3]].contiguous()
         out = torch.cat([d4, e3], dim=1)
         
         d3 = self.bn3_t(F.pad(self.de3(out), [0, 0, 1, 0]).contiguous())
         d3 = self.elu(d3)
+        # Match both time (dim=2) and frequency (dim=3) dimensions
+        if d3.shape[2] < e2.shape[2]:
+            e2 = e2[:, :, :d3.shape[2], :].contiguous()
         if d3.shape[3] < e2.shape[3]:
             e2 = e2[:, :, :, :d3.shape[3]].contiguous()
         out = torch.cat([d3, e2], dim=1)
         
         d2 = self.bn2_t(F.pad(self.de2(out), [0, 0, 1, 0]).contiguous())
         d2 = self.elu(d2)
+        # Match both time (dim=2) and frequency (dim=3) dimensions
+        if d2.shape[2] < e1.shape[2]:
+            e1 = e1[:, :, :d2.shape[2], :].contiguous()
         if d2.shape[3] < e1.shape[3]:
             e1 = e1[:, :, :, :d2.shape[3]].contiguous()
         out = torch.cat([d2, e1], dim=1)

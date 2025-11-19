@@ -676,7 +676,7 @@ class Model(object):
         model_file = test_conf['model_file']
         save_tracks = test_conf['save_tracks']
         save_dir = test_conf['save_dir']
-        compute_metrics = test_conf['compute_metrics']
+        enable_metrics = test_conf['compute_metrics']
         cut_len = test_conf['cut_len']
         device_str = test_conf['device']
 
@@ -692,7 +692,7 @@ class Model(object):
         print(f"  Test noisy: {TEST_NOISY_DIR}")
         print(f"  Output: {save_dir}")
         print(f"  Device: {self.device}")
-        print(f"  Compute metrics: {compute_metrics}")
+        print(f"  Compute metrics: {enable_metrics}")
         print(f"  STFT: n_fft={self.n_fft}, hop={self.hop_length}, power={self.power}")
         print()
         # Create output directory
@@ -758,19 +758,19 @@ class Model(object):
 
         # Check if clean directory exists for metrics
         has_clean = os.path.isdir(TEST_CLEAN_DIR)
-        if not has_clean and compute_metrics:
+        if not has_clean and enable_metrics:
             print(f"⚠ Warning: Clean directory not found: {TEST_CLEAN_DIR}")
             print("  Metrics will not be computed")
-            compute_metrics = False
+            enable_metrics = False
 
         # Initialize metrics
-        if compute_metrics and HAS_METRICS:
+        if enable_metrics and HAS_METRICS:
             metrics_total = np.zeros(6)  # PESQ, CSIG, CBAK, COVL, SSNR, STOI
             metrics_count = 0
-        elif compute_metrics and not HAS_METRICS:
+        elif enable_metrics and not HAS_METRICS:
             print("⚠ Warning: Metrics libraries not installed")
             print("  Install with: pip install pesq pystoi pysepm")
-            compute_metrics = False
+            enable_metrics = False
 
         # Process files
         print("="*70)
@@ -790,7 +790,7 @@ class Model(object):
                 )
 
                 # Compute metrics if available
-                if compute_metrics and has_clean and HAS_METRICS:
+                if enable_metrics and has_clean and HAS_METRICS:
                     clean_audio, sr = sf.read(clean_path)
                     assert sr == 16000
 
@@ -821,7 +821,7 @@ class Model(object):
         print("="*70)
         print(f"Processed: {num_files} files")
 
-        if compute_metrics and metrics_count > 0:
+        if enable_metrics and metrics_count > 0:
             metrics_avg = metrics_total / metrics_count
             print(f"\nAverage Metrics (over {metrics_count} files):")
             print(f"  PESQ: {metrics_avg[0]:.4f}")
